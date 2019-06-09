@@ -1,10 +1,10 @@
 from random import randrange
 from os import system, name
 import json
-import time
 from img import hangman_img
+# import time
+# import re
 
-import re
 
 class Hangman:
     def __init__(self):
@@ -40,7 +40,7 @@ class Hangman:
             self.select_language(lang)
 
     def get_words_list(self):
-        with open('words.json') as json_file:
+        with open('words.json', encoding='utf-8') as json_file:
             data = json.load(json_file)[f'randomWords{self.lang}']
             return data
 
@@ -50,29 +50,27 @@ class Hangman:
 
     def intro(self):
         self.clear_screen()
-        print(f'Ok, let\'s begin. Here\'s your word:\n{self.show_guessed_letters()}')
+        self.show_hangman()
+        print(f'Ok, let\'s begin. Here\'s your word:')
+        print(self.show_guessed_letters())
 
     def is_already_guessed(self, letter):
         if letter in self.all_letters_guessed:
-            print(f'You already tried that! \n{self.show_guessed_letters()}')
+            self.show_hangman()
+            print(f'You already tried that!')
+            print(self.show_guessed_letters())
             self.guess()
         self.all_letters_guessed.append(letter)
 
     def is_valid_character(self, letter):
         if len(letter) != 1:
-            print(f'Only one character at a time, please! \n{self.show_guessed_letters()}')
+            self.show_hangman()
+            print(f'Only one character at a time, please!')
+            print(self.show_guessed_letters())
             self.guess()
         if letter == ' ':
             print('Please type something')
             self.guess()
-
-    def is_game_over(self):
-        if self.show_guessed_letters().replace(' ', '') == self.current_word:
-            print(f'You got it. Congratulations!')
-            return True
-        if len(self.incorrect_answers) >= self.permitted_errors:
-            print(f'You lost! The word was "{self.current_word}."')
-            return True
 
     def show_guessed_letters(self):
         result = ''
@@ -84,13 +82,25 @@ class Hangman:
         return result
 
     def show_hangman(self):
-        print(hangman_img[len(self.incorrect_answers)])
+        try:
+            print(hangman_img[len(self.incorrect_answers)])
+        except IndexError:
+            print(hangman_img[-1])
+
+    def is_game_over(self):
+        if self.show_guessed_letters().replace(' ', '') == self.current_word:
+            print(f'You got it. Congratulations!')
+            return True
+        if len(self.incorrect_answers) >= self.permitted_errors:
+            print(f'You lost! The word was "{self.current_word}."')
+            return True
 
     def guess(self):
         letter = input('\n=> ')
         self.clear_screen()
         self.is_valid_character(letter)
         self.is_already_guessed(letter)
+        self.show_hangman()
 
         if letter in self.current_word:
             print(f'\033[92mYay! {letter.capitalize()} is correct!\033[0m')
@@ -98,7 +108,7 @@ class Hangman:
             self.incorrect_answers.append(letter)
             print(f'\033[93mNope, {letter.capitalize()} is not a correct answer.\033[0m')
 
-        print(self.show_guessed_letters())
+        print(self.show_guessed_letters() or ' ')
 
         if not self.is_game_over():
             self.guess()
