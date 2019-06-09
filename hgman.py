@@ -50,23 +50,20 @@ class Hangman:
 
     def intro(self):
         self.clear_screen()
-        self.show_hangman()
         print(f'Ok, let\'s begin. Here\'s your word:')
-        print(self.show_guessed_letters())
+        self.show_data()
 
     def is_already_guessed(self, letter):
         if letter in self.all_letters_guessed:
-            self.show_hangman()
             print(f'You already tried that!')
-            print(self.show_guessed_letters())
+            self.show_data()
             self.guess()
         self.all_letters_guessed.append(letter)
 
     def is_valid_character(self, letter):
         if len(letter) != 1:
-            self.show_hangman()
             print(f'Only one character at a time, please!')
-            print(self.show_guessed_letters())
+            self.show_data()
             self.guess()
         if letter == ' ':
             print('Please type something')
@@ -87,6 +84,10 @@ class Hangman:
         except IndexError:
             print(hangman_img[-1])
 
+    def show_data(self):
+        print(self.show_guessed_letters() or ' ')
+        self.show_hangman()
+
     def is_game_over(self):
         if self.show_guessed_letters().replace(' ', '') == self.current_word:
             print(f'You got it. Congratulations!')
@@ -100,7 +101,6 @@ class Hangman:
         self.clear_screen()
         self.is_valid_character(letter)
         self.is_already_guessed(letter)
-        self.show_hangman()
 
         if letter in self.current_word:
             print(f'\033[92mYay! {letter.capitalize()} is correct!\033[0m')
@@ -108,10 +108,12 @@ class Hangman:
             self.incorrect_answers.append(letter)
             print(f'\033[93mNope, {letter.capitalize()} is not a correct answer.\033[0m')
 
-        print(self.show_guessed_letters() or ' ')
+        self.show_data()
 
         if not self.is_game_over():
             self.guess()
+        else:
+            return False
 
 
 game = Hangman()
