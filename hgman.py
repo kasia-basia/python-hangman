@@ -3,13 +3,12 @@ from os import system, name
 import json
 from img import hangman_img
 import re
-# import time
 
 
 class Hangman:
     def __init__(self):
         self.clear_screen()
-        self.name = input('Hello, what\'s your name? \n => ')
+        self.name = input('Hello, what\'s your name? \n => ').capitalize()
         self.lang = Hangman.select_language(self, None)
         self.random_words_list = Hangman.get_words_list(self)
         self.current_word = Hangman.select_random_word(self)
@@ -30,7 +29,7 @@ class Hangman:
     def select_language(self, lang):
         if lang is None:
             self.clear_screen()
-            lang = input(f'Nice to meet you, {self.name.capitalize()}! '
+            lang = input(f'Nice to meet you, {self.name}! '
                          f'What language do you want to play in? Type PL or EN. \n => ')
         if lang.upper() in ['EN', 'PL']:
             return lang.upper()
@@ -81,16 +80,23 @@ class Hangman:
         except IndexError:
             print(hangman_img[-1])
 
+    def show_incorrect_answers(self):
+        result = ''
+        for l in self.incorrect_answers:
+            result += f'{l} '
+        print(f'\033[91m{result}\033[0m')
+
     def show_data(self):
         print(self.show_guessed_letters() or ' ')
         self.show_hangman()
+        self.show_incorrect_answers()
 
     def is_game_over(self):
         if self.show_guessed_letters().replace(' ', '') == self.current_word:
-            print(f'\033[92mYou got it. Congratulations!\033[0m')
+            print(f'\033[92mYou got it. Congratulations, {self.name}!\033[0m')
             return True
         if len(self.incorrect_answers) >= self.permitted_errors:
-            print(f'\033[93mYou lost! The word was "{self.current_word}."\033[0m')
+            print(f'\033[93mYou lost, {self.name}! The word was "{self.current_word}."\033[0m')
             return True
 
     def guess(self):
@@ -109,8 +115,8 @@ class Hangman:
 
         if not self.is_game_over():
             self.guess()
-        elif self.is_game_over():
-            return False
+        else:
+            exit()
 
 
 game = Hangman()
