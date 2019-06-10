@@ -2,8 +2,8 @@ from random import randrange
 from os import system, name
 import json
 from img import hangman_img
+import re
 # import time
-# import re
 
 
 class Hangman:
@@ -50,23 +50,20 @@ class Hangman:
 
     def intro(self):
         self.clear_screen()
-        print(f'Ok, let\'s begin. Here\'s your word:')
+        print(f'Ok, let\'s begin. Here\'s your word:\n')
         self.show_data()
 
     def is_already_guessed(self, letter):
         if letter in self.all_letters_guessed:
-            print(f'You already tried that!')
+            print(f'You already tried that!\n')
             self.show_data()
             self.guess()
         self.all_letters_guessed.append(letter)
 
     def is_valid_character(self, letter):
-        if len(letter) != 1:
-            print(f'Only one character at a time, please!')
+        if not re.match('^[A-Za-z]$', letter):
+            print(f'Insert a single letter\n')
             self.show_data()
-            self.guess()
-        if letter == ' ':
-            print('Please type something')
             self.guess()
 
     def show_guessed_letters(self):
@@ -90,29 +87,29 @@ class Hangman:
 
     def is_game_over(self):
         if self.show_guessed_letters().replace(' ', '') == self.current_word:
-            print(f'You got it. Congratulations!')
+            print(f'\033[92mYou got it. Congratulations!\033[0m')
             return True
         if len(self.incorrect_answers) >= self.permitted_errors:
-            print(f'You lost! The word was "{self.current_word}."')
+            print(f'\033[93mYou lost! The word was "{self.current_word}."\033[0m')
             return True
 
     def guess(self):
-        letter = input('\n=> ')
+        letter = input('\n=> ').replace(' ', '')
         self.clear_screen()
         self.is_valid_character(letter)
         self.is_already_guessed(letter)
 
         if letter in self.current_word:
-            print(f'\033[92mYay! {letter.capitalize()} is correct!\033[0m')
+            print(f'\033[92mYay! {letter.capitalize()} is correct!\033[0m\n')
         else:
             self.incorrect_answers.append(letter)
-            print(f'\033[93mNope, {letter.capitalize()} is not a correct answer.\033[0m')
+            print(f'\033[93mNope, {letter.capitalize()} is not a correct answer.\033[0m\n')
 
         self.show_data()
 
         if not self.is_game_over():
             self.guess()
-        else:
+        elif self.is_game_over():
             return False
 
 
