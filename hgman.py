@@ -8,8 +8,8 @@ import re
 class Hangman:
     def __init__(self):
         self.clear_screen()
-        self.name = input('Hello, what\'s your name? \n => ').capitalize()
-        self.lang = Hangman.select_language(self, None)
+        self.name = input('Hello, what\'s your name? \n => ').capitalize() or 'Anonymous'
+        self.lang = Hangman.select_language(self)
         self.random_words_list = Hangman.get_words_list(self)
         self.current_word = Hangman.select_random_word(self)
         self.intro()
@@ -26,21 +26,19 @@ class Hangman:
         else:
             _ = system('clear')
 
-    def select_language(self, lang):
-        if lang is None:
+    def select_language(self):
+        self.clear_screen()
+        lang = input(f'Nice to meet you, {self.name}! '
+                     f'What language do you want to play in? Type PL or EN. \n => ')
+        while lang.upper() not in ['PL', 'EN']:
             self.clear_screen()
-            lang = input(f'Nice to meet you, {self.name}! '
-                         f'What language do you want to play in? Type PL or EN. \n => ')
-        if lang.upper() in ['EN', 'PL']:
-            return lang.upper()
-        else:
-            self.clear_screen()
-            lang = input('Type "EN" or "PL" for English or Polish. Other languages currently not supported. \n => ')
-            self.select_language(lang)
+            lang = input('Type "EN" or "PL" for English or Polish. '
+                         'Other languages not supported. \n => ')
+        return lang.upper()
 
     def get_words_list(self):
         with open('words.json', encoding='utf-8') as json_file:
-            data = json.load(json_file)[f'randomWords{self.lang}']
+            data = json.load(json_file)[f'{self.lang}']
             return data
 
     def select_random_word(self):
@@ -60,7 +58,7 @@ class Hangman:
         self.all_letters_guessed.append(letter)
 
     def is_valid_character(self, letter):
-        if not re.match('^[A-Za-z]$', letter):
+        if not re.match('^[A-Za-zÀ-ž]$', letter):
             print(f'Insert a single letter\n')
             self.show_data()
             self.guess()
@@ -100,7 +98,7 @@ class Hangman:
             return True
 
     def guess(self):
-        letter = input('\n=> ').replace(' ', '')
+        letter = input('\n=> ').replace(' ', '').lower()
         self.clear_screen()
         self.is_valid_character(letter)
         self.is_already_guessed(letter)
